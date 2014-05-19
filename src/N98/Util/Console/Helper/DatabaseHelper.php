@@ -3,7 +3,6 @@
 namespace N98\Util\Console\Helper;
 
 use Symfony\Component\Console\Helper\Helper as AbstractHelper;
-use N98\Util\Console\Helper\MagentoHelper;
 use N98\Magento\Application;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,9 +25,16 @@ class DatabaseHelper extends AbstractHelper
     protected $_connection = null;
 
     /**
+     * @var array
+     */
+    protected $_tables;
+
+    /**
      * @param OutputInterface $output
      * @param bool            $silent
+     * @throws \Exception
      *
+     * @throws \Exception
      * @return void
      */
     public function detectDbSettings(OutputInterface $output, $silent = true)
@@ -59,6 +65,11 @@ class DatabaseHelper extends AbstractHelper
 
             $this->dbSettings = (array) $config->global->resources->default_setup->connection;
 	        $this->dbSettings['prefix'] = (string) $config->global->resources->db->table_prefix;
+
+            if(strpos($this->dbSettings['host'], ':') !== false) {
+                list($this->dbSettings['host'], $this->dbSettings['port']) = explode(':', $this->dbSettings['host']);
+            }
+
             if (isset($this->dbSettings['comment'])) {
                 unset($this->dbSettings['comment']);
             }
@@ -112,6 +123,8 @@ class DatabaseHelper extends AbstractHelper
             $this->_connection->query('USE `'.$this->dbSettings['dbname'].'`');
         } catch(\PDOException $e) {
         }
+
+        $this->_connection->query("SET NAMES utf8");
 
         $this->_connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
         $this->_connection->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
@@ -216,6 +229,39 @@ class DatabaseHelper extends AbstractHelper
     }
 
     /**
+     * @param $commandConfig
+     * @throws \Exception
+     * @internal param $config
+     * @return array $commandConfig
+     * @return array
+     */
+    public function getTableDefinitions($commandConfig)
+    {
+        $tableDefinitions = array();
+        if (isset($commandConfig['table-groups'])) {
+            $tableGroups = $commandConfig['table-groups'];
+            foreach ($tableGroups as $index=>$definition) {
+                $description = isset($definition['description']) ? $definition['description'] : '';
+                if (!isset($definition['id'])) {
+                    throw new \Exception('Invalid definition of table-groups (id missing) Index: ' . $index);
+                }
+                if (!isset($definition['id'])) {
+                    throw new \Exception('Invalid definition of table-groups (tables missing) Id: '
+                        . $definition['id']
+                    );
+                }
+
+                $tableDefinitions[$definition['id']] = array(
+                    'tables'      => $definition['tables'],
+                    'description' => $description,
+                );
+            }
+        };
+
+        return $tableDefinitions;
+    }
+
+    /**
      * @param array $list
      * @param array $definitions
      * @param array $resolved Which definitions where already resolved -> prevent endless loops
@@ -225,6 +271,10 @@ class DatabaseHelper extends AbstractHelper
      */
     public function resolveTables(array $list, array $definitions = array(), array $resolved = array())
     {
+        if ($this->_tables === null) {
+            $this->_tables = $this->getTables();
+        }
+
         $resolvedList = array();
         foreach ($list as $entry) {
             if (substr($entry, 0, 1) == '@') {
@@ -254,7 +304,9 @@ class DatabaseHelper extends AbstractHelper
                 continue;
             }
 
-            $resolvedList[] = $entry;
+            if (in_array($entry, $this->_tables)) {
+                $resolvedList[] = $entry;
+            }
         }
 
         asort($resolvedList);

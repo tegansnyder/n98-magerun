@@ -3,39 +3,36 @@ RECENT CHANGES
 **************
 
 ======
-1.83.0
+1.89.1
 ======
 
-* Added --skip-config option to prohibit loading of external config files.
-* #251 Improve db:info with prefix and machine-readable output (by Melvyn Sopacua)
-* #255 ConfigurationLoader::loadPluginConfig() Bug? (Thanks to Cyrill Schumacher)
-* #257 Configuration value decryption fails when using Enterprise Edition (by @aedmonds)
-* #196 New table group for db:dump: --strip="@search" (by mystix)
-* #124 Feature Request: dev:log:size should support "human readable" flags. (by Alan Storm)
-* Updated dependencies (PHPUnit, Composer, Twig, JUnit-XML)
+* Installer: Replaced Magento CE 1.9.0.0 with CE 1.9.0.1
 
 ======
-1.82.0
+1.89.0
 ======
 
-* Moved sys:check command logic into dist config
-* Changed Magento detection (for future Magento 2 support)
-* Adds --noDownload option to InstallCommand (by Manuele Menozzi)
-* Fix: config:set fix --encrypt input option (by Robert Coleman)
+* #320 Fixing minor grammatical error (by Chris Jones)
+* #326 Encryption key parameter in install command (by Kristof Ringleff)
+* #327 Uninstall from specified folder (by Kristof Ringleff)
+* #328 added Magento CE install option (by Hans Kuijpers)
+* #329 Added Magento CE 1.9.0.0 to test script (by Hans Kuijpers)
+* #331 Keep dataflow profiles when stripping temp tables
+* Changed download URLs to raw.githubusercontent.com
 * Updated 3rd party dependencies
 
 ======
-1.81.0
+1.88.0
 ======
 
-* script command: Do not prompt for variables, defined with "--define" option.
-* script command: Added support for choices
-* script command: Fixed resolution of other variables
-* Added --define option to script:repo:run command
-* Updated Symfony dependencies
-* Fix flush to use Enterprise_PageCache_Model_Cache only for 1.11 and up (by Jay Becker)
-* Added an '--add-routines' option to db:dump command. (by Pieter Hoste)
-* #238 - Enable symlinks globally, with interactive
+* New command dev:translate:set
+* #149 Command for dumping media directory
+* #309 N98\Magento\Application::_initMagento1()
+* #310 Export inline translation to CSV (by Alexander Menk)
+* #316 db:import dump optimization (--optimize) - small fixes (by Alexander Menk)
+* #319 dev:module:rewrite:list does not list autoload rewrites in community folder
+* #320 Fixing minor grammatical error (by Chris Jones)
+* Updated 3rd party dependencies
 
 -----------------------------------------
 SEE FULL CHANGELOG: http://bit.ly/10IDU1H

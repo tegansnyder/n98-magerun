@@ -42,13 +42,13 @@ Download phar file
 
 .. code-block:: sh
 
-    wget https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar
+    wget https://raw.githubusercontent.com/netz98/n98-magerun/master/n98-magerun.phar
 
 or if you have problems with SSL certificate:
 
 .. code-block:: sh
 
-   curl -o n98-magerun.phar https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar
+   curl -o n98-magerun.phar https://raw.githubusercontent.com/netz98/n98-magerun/master/n98-magerun.phar
 
 You can make the .phar file executable.
 
@@ -180,7 +180,7 @@ If search parameter is given the customers are filtered (searchs in firstname, l
 
 .. code-block:: sh
 
-   $ n98-magerun.phar  customer:list [search]
+   $ n98-magerun.phar  customer:list [--format[="..."]] [search]
 
 Change customer password
 """"""""""""""""""""""""
@@ -288,6 +288,7 @@ Available Table Groups:
 * @sales Sales data (orders, invoices, creditmemos etc)
 * @customers Customer data
 * @trade Current trade data (customers and orders). You usally do not want those in developer systems.
+* @search Search related tables (catalogsearch_)
 * @development Removes logs and trade data so developers do not have to work with real customer data
 
 Extended: https://github.com/netz98/n98-magerun/wiki/Stripped-Database-Dumps
@@ -321,6 +322,12 @@ Use decompression (gzip cli tool has to be installed):
 .. code-block:: sh
 
    $ n98-magerun.phar db:import --compression="gzip" [filename]
+
+Optimize "human readable" dump:
+
+.. code-block:: sh
+
+   $ n98-magerun.phar db:import --optimize [filename]
 
 Database Console / MySQL Client
 """""""""""""""""""""""""""""""
@@ -374,12 +381,28 @@ Options:
 
    $ n98-magerun.phar db:query [--only-command] [query]
 
+
+Dump Media folder
+"""""""""""""""""
+
+Creates a ZIP archive with media folder content.
+
+.. code-block:: sh
+
+   $ n98-magerun.phar media:dump [--strip] [filename]
+
+If strip option is set, the following folders are excluded:
+
+* js (combined js files)
+* css (combined css files)
+* catalog/product/cache
+
 List Indexes
 """"""""""""
 
 .. code-block:: sh
 
-   $ n98-magerun.phar index:list
+   $ n98-magerun.phar index:list [--format[="..."]]
 
 Reindex a Index
 """""""""""""""
@@ -472,18 +495,27 @@ Get Config
 
 .. code-block:: sh
 
-   $ n98-magerun.phar config:get [--scope="..."] [--scope-id="..."] [--decrypt] [path]
+   $ n98-magerun.phar config:get [--scope="..."] [--scope-id="..."] [--decrypt] [--format[="..."]] [path]
 
 Arguments:
     path        The config path
 
 Options:
-    --scope     The config value's scope (default, websites, stores)
-    --scope-id  The config value's scope ID
-    --decrypt   Decrypt the config value using local.xml's crypt key
+    --scope             The config value's scope (default, websites, stores)
+    --scope-id          The config value's scope ID
+    --decrypt           Decrypt the config value using local.xml's crypt key
+    --update-script     Output as update script lines
+    --magerun-script    Output for usage with config:set
+    --format            Output as json, xml or csv
 
 Help:
-    If path is not set, all available config items will be listed. path may contain wildcards (*)
+    If path is not set, all available config items will be listed. path may contain wildcards (*) 
+
+Example:
+
+.. code-block:: sh
+
+   $ n98-magerun.phar config:get web/* --magerun-script
 
 Delete Config
 """""""""""""
@@ -546,22 +578,48 @@ List Magento caches
 
 .. code-block:: sh
 
-   $ n98-magerun.phar cache:list
+   $ n98-magerun.phar cache:list [--format[="..."]]
 
 Disable Magento cache
 """""""""""""""""""""
 
 .. code-block:: sh
 
-   $ n98-magerun.phar cache:disable
+   $ n98-magerun.phar cache:disable [code]
+
+If no code is specified, all cache types will be disabled.
+Run `cache:list` command to see all codes.
 
 Enable Magento cache
 """"""""""""""""""""
 
 .. code-block:: sh
 
-   $ n98-magerun.phar cache:enable
+   $ n98-magerun.phar cache:enable [code]
 
+If no code is specified, all cache types will be enabled.
+Run `cache:list` command to see all codes.
+
+Cache Report
+""""""""""""
+
+This command let you investigate what's stored inside your cache.
+It prints out a table with cache IDs.
+
+.. code-block:: sh
+
+   $ cache:report [-t|--tags] [-m|--mtime] [--filter-id[="..."]] [--filter-tag[="..."]] [--fpc]
+
+Cache View
+""""""""""
+
+Prints stored cache entry by ID.
+
+.. code-block:: sh
+
+   $ cache:view [--unserialize] [--fpc] id
+
+If value is serialized you can force a pretty output with --unserialize option.
 
 Demo Notice
 """""""""""
@@ -577,7 +635,7 @@ List admin users
 
 .. code-block:: sh
 
-   $ n98-magerun.phar admin:user:list
+   $ n98-magerun.phar admin:user:list [--format[="..."]]
 
 Create admin user
 """""""""""""""""
@@ -604,7 +662,7 @@ Toggle admin notifications.
    $ n98-magerun.phar admin:notifications
 
 Maintenance mode
-"""""""""""""""""""""""
+""""""""""""""""
 
 If no option is provided it toggles the mode on every call.
 
@@ -613,7 +671,7 @@ If no option is provided it toggles the mode on every call.
    $ n98-magerun.phar sys:maintenance [--on] [--off]
 
 Magento system info
-""""""""""""""""""""
+"""""""""""""""""""
 
 Provides info like the edition and version or the configured cache backends.
 
@@ -628,7 +686,7 @@ Lists all store views.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar sys:store:list
+   $ n98-magerun.phar sys:store:list [--format[="..."]]
 
 Magento Store Config - BaseURLs
 """""""""""""""""""""""""""""""
@@ -637,16 +695,16 @@ Lists base urls for each store.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar sys:store:config:base-url:list
+   $ n98-magerun.phar sys:store:config:base-url:list [--format[="..."]]
 
 Magento Websites
-""""""""""""""
+""""""""""""""""
 
 Lists all websites.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar sys:website:list
+   $ n98-magerun.phar sys:website:list [--format[="..."]]
 
 List Cronjobs
 """""""""""""
@@ -655,7 +713,7 @@ Lists all cronjobs defined in config.xml files.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar sys:cron:list
+   $ n98-magerun.phar sys:cron:list [--format[="..."]]
 
 Run Cronjob
 """""""""""
@@ -676,7 +734,7 @@ Last executed cronjobs with status.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar sys:cron:history
+   $ n98-magerun.phar sys:cron:history [--format[="..."]]
 
 List URLs
 """""""""
@@ -712,6 +770,16 @@ This command is useful if you update your system with enabled maintenance mode.
 
    $ n98-magerun.phar sys:setup:run
 
+Run Setup Scripts Incrementally
+"""""""""""""""""""""""""""""""
+
+Runs setup scripts incrementally. (no need to call frontend).
+This command runs each new setup script individually in order to increase the transparency of the setup resource system, and reduce the chances of a PHP failure creating an invalid database state.
+
+.. code-block:: sh
+
+   $ n98-magerun.phar sys:setup:incremental
+   
 Compare Setup Versions
 """"""""""""""""""""""
 
@@ -800,6 +868,15 @@ Toggle for admin area:
 
    $ n98-magerun.phar dev:translate:admin
 
+Export Inline Translation
+"""""""""""""""""""""""""
+
+Exports saved database translation data into a file.
+
+.. code-block:: sh
+
+   $ n98-magerun.phar dev:translate:export [locale] [filename]
+
 Profiler
 """"""""
 
@@ -846,6 +923,15 @@ i.e.
    $ n98-magerun.phar dev:setup:script:attribute catalog_product color
 
 Currently only *catalog_product* entity type is supported.
+
+EAV Attributes
+""""""""""""""
+
+List all EAV attributes:
+
+.. code-block:: sh
+
+   $ n98-magerun.phar eav:attribute:list [--filter-type[="..."]] [--add-source] [--format[="..."]]
 
 Development IDE Support
 """""""""""""""""""""""
@@ -935,14 +1021,16 @@ Lists all installed modules with codepool and version
 
 .. code-block:: sh
 
-   $ n98-magerun.phar dev:module:list  [--codepool[="..."]] [--status[="..."]] [--vendor=[="..."]]
+   $ n98-magerun.phar dev:module:list  [--codepool[="..."]] [--status[="..."]] [--vendor=[="..."]] [--format[="..."]]
 
 Rewrite List
 """"""""""""
 
-Lists all registered class rewrites::
+Lists all registered class rewrites.
 
-   $ n98-magerun.phar dev:module:rewrite:list
+.. code-blocks:: sh
+
+   $ n98-magerun.phar dev:module:rewrite:list [--format[="..."]]
 
 Rewrite Conflicts
 """""""""""""""""
@@ -963,13 +1051,13 @@ Show list of modules which given module depends on
 
 .. code-block:: sh
 
-   $ n98-magerun.phar dev:module:dependencies:on [-a|--all] moduleName
+   $ n98-magerun.phar dev:module:dependencies:on [-a|--all] [--format[="..."]] moduleName
 
 Show list of modules which depend from module
 
 .. code-block:: sh
 
-   $ n98-magerun.phar dev:module:dependencies:from [-a|--all] moduleName
+   $ n98-magerun.phar dev:module:dependencies:from [-a|--all] [--format[="..."]] moduleName
 
 Observer List
 """""""""""""
@@ -989,7 +1077,7 @@ Lists all frontend themes
 
 .. code-block:: sh
 
-   $ n98-magerun.phar dev:theme:list
+   $ n98-magerun.phar dev:theme:list [--format[="..."]]
 
 
 Find Duplicates in your theme
@@ -1019,7 +1107,7 @@ List and find connect extensions by a optional search string:
 
 .. code-block:: sh
 
-   $ n98-magerun.phar extension:list <search>
+   $ n98-magerun.phar extension:list [--format[="..."]] <search>
 
 * Requires Magento's `mage` shell script.
 * Does not work with Windows as operating system.
@@ -1125,7 +1213,7 @@ Run multiple commands from a script file.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar [-d|--define[="..."]] [filename]
+   $ n98-magerun.phar [-d|--define[="..."]] [--stop-on-error] [filename]
 
 Example:
 
@@ -1212,13 +1300,13 @@ The first line of the script can contain a comment (line prefixed with #) which 
 
 .. code-block:: sh
 
-   $ n98-magerun.phar script:repo:list
+   $ n98-magerun.phar script:repo:list [--format[="..."]]
 
 If you want to execute a script from repository this can be done by *script:repo:run* command.
 
 .. code-block:: sh
 
-   $ n98-magerun.phar script:repo:run [-d|--define[="..."]] [script]
+   $ n98-magerun.phar script:repo:run [-d|--define[="..."]] [--stop-on-error] [script]
 
 Script argument is optional. If you don't specify any you can select one from a list.
 
